@@ -65,9 +65,21 @@ for file in files:
             elif trial <= 448:
                 rt[trial - 1, 3] = 1
             elif trial <= 848:
-                rt[trial - 1, 3] = 2
+                if int(subj) in {1002, 1004, 1006, 1008,
+                                 1010, 1011, 1013, 1015,
+                                 1017, 1019, 1021, 1023,
+                                 1028}:
+                    rt[trial - 1, 3] = 3
+                else:
+                    rt[trial - 1, 3] = 2
             elif trial <= 1248:
-                rt[trial - 1, 3] = 3
+                if int(subj) in {1002, 1004, 1006, 1008,
+                                 1010, 1011, 1013, 1015,
+                                 1017, 1019, 1021, 1023,
+                                 1028}:
+                    rt[trial - 1, 3] = 2
+                else:
+                    rt[trial - 1, 3] = 3
 
             next_t = new_evs[range(i, i + 3)]
 
@@ -172,29 +184,3 @@ for file in files:
     frames.to_csv(os.path.join(output_path, 'sub-%s.tsv' % subj),
                   sep='\t',
                   index=True)
-
-
-
-
-
-# rt = np.zeros((1200, 3))
-# lc = [] #11
-# li = [] #21
-# rc = [] #12
-# ri = [] #22
-
-# for i in range(len(new_evs[152:])):
-# if new_evs[152:][i, 2] == 71:
-#   ind = np.count_nonzero(new_evs[0:i] == 71) - 1
-## rt[ind][0] = (new_evs[i + 2, 0] - new_evs[i + 1, 0])
-#  rt[ind][1] = new_evs[152:][i + 1, 2]
-# rt[ind][2] = new_evs[152:][i + 2, 2]
-
-# print(len(rt))
-
-# rt_1 = np.zeros((3, 400))
-# loop over participants
-# for n in range(24):
-# for i in range(3): # loop over blocks
-# for t in range(400): # loop over trials
-# rt[i][t] =

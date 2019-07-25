@@ -6,10 +6,14 @@ from mne import pick_types, Epochs, combine_evoked
 import pandas as pd
 import numpy as np
 
-output_dir = '/Volumes/Recovery/ern_soc_eeg/derivatives/segmentation/epochs'
+output_dir = '/Users/philipplange/Desktop/analysis_ma/epochs'
 output_dir_ave = '/Volumes/Recovery/ern_soc_eeg/derivatives/segmentation/epochs/average'
 data_path = '/Volumes/Recovery/ern_soc_eeg/derivatives/pruned'
-for file in sorted(glob.glob(os.path.join(data_path, '*.fif'))):
+output_dir_filtered_rt = '/Users/philipplange/Desktop/analysis_ma/behav'
+
+files = sorted(glob.glob(os.path.join(data_path, '*.fif')))
+
+for file in files:
     filepath, filename = os.path.split(file)
     filename, ext = os.path.splitext(filename)
     # Each time the loop goes through a new iteration,
@@ -70,6 +74,7 @@ for file in sorted(glob.glob(os.path.join(data_path, '*.fif'))):
                     new_evs[:, 2][i] = 2094  # Incorrect Incongr.
                 valid = False
                 continue
+
             elif trial <= 848:
                 if new_evs[:, 2][i] in [101, 102] and suffix == 1:
                     new_evs[:, 2][i] = 3091  # Correct Congr.
@@ -143,12 +148,13 @@ for file in sorted(glob.glob(os.path.join(data_path, '*.fif'))):
                            '+_Incorrect incongr.': 4094
                            }
 
-    # reject_criteria = dict(mag=4000e-15,  # 4000 fT
-    #                        grad=4000e-13,  # 4000 fT/cm
-    #                        eeg=150e-6,  # 150 μV
-    #                        eog=250e-6)
+    rt = pd.read_csv(os.path.join(data_path,
+                                  'derivatives/rt/', 'sub-%s.tsv' % subj),
+                     sep='\t', header=0, usecols=range(1, 6))
+    rt = rt.dropna(axis=0)
 
     choice_epochs = Epochs(raw, new_evs, choice_event_id,
+                           metadata=rt,
                            on_missing='ignore',
                            tmin=-1,
                            tmax=1,
@@ -165,6 +171,11 @@ for file in sorted(glob.glob(os.path.join(data_path, '*.fif'))):
 
     index, scaling_time, scalings = ['epoch', 'time'], 1e3, dict(grad=1e13)
 
+    choice_epochs.metadata.to_csv(os.path.join(output_dir_filtered_rt, 'filterd_sub-%s.tsv' % subj),
+              sep='\t',
+              index=False)
+
+
     df = choice_epochs.to_data_frame(picks=None, scalings=scalings,
                                      scaling_time=scaling_time, index=index)
 
@@ -177,7 +188,7 @@ for file in sorted(glob.glob(os.path.join(data_path, '*.fif'))):
 
     df.to_csv(os.path.join(output_dir, 'sub-%s.tsv' % subj),
               sep='\t',
-              index=True)
+              index=False)
 
     # fig = mne.viz.plot_events(new_evs, sfreq=raw.info['sfreq'])
     # ig.subplots_adjust(right=0.7)
